@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+    <title>Echarts BISystemF</title>
+    <!-- 引入 ECharts 文件 -->
+    <script src="echarts.min.js"></script>
+    <!-- 引入 jquery.js -->
+    <script type="text/javascript" src="jquery-1.12.3.js"></script>
+</head>
+<body style="height: 100%; margin: 0">
+<div id="container" style="height: 100%"></div>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+<script type="text/javascript"
+        src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+<script type="text/javascript">
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var app = {};
+    option = null;
+    app.title = '折柱混合';
+
+    option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                    color: '#999'
+                }
+            }
+        },
+        toolbox: {
+            feature: {
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        legend: {
+            data: ["活跃用户人数", "新增用户人数", "活跃充值人数", "活跃消费人数", "新增充值人数", "新增消费人数", "总充值人数", "总消费人数"]
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: [],
+                axisPointer: {
+                    type: 'shadow'
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                name: '人数',
+                min: 0,
+                max: 1500,
+                interval: 100,
+                axisLabel: {
+                    formatter: '{value} 人'
+                }
+            },
+            {
+                type: 'value',
+                name: '人数',
+                min: 0,
+                max: 1500,
+                interval: 100,
+                axisLabel: {
+                    formatter: '{value} 人'
+                }
+            }
+        ],
+        series: [
+            {
+                name: '活跃用户人数',
+                type: 'line',
+                data: []
+            },
+            {
+                name: '新增用户人数',
+                type: 'line',
+                data: []
+            },
+            {
+                name: '活跃充值人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            },
+            {
+                name: '活跃消费人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            },
+            {
+                name: '新增充值人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            },
+            {
+                name: '新增消费人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            },
+            {
+                name: '总充值人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            },
+            {
+                name: '总消费人数',
+                type: 'bar',
+                yAxisIndex: 1,
+                data: []
+            }
+        ]
+    };
+
+    // 对数据进行AJax获取
+    var times = [];    //自定义显示时间
+    var active = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var nNew = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var activePay = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var activeCrons = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var newPay = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var newCrons = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var totalPay = [];    //活跃用户数组（实际用来盛放Y坐标值）
+    var totalCrons = [];    //活跃用户数组（实际用来盛放Y坐标值）
+
+    $.ajax({
+        type: "post",
+        async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+        url: "TestServlet",    //请求发送到TestServlet处
+        data: {},
+        dataType: "json",        //返回数据形式为json
+        success: function (result) {
+            console.log(result)
+            //请求成功时执行该函数内容，result即为服务器返回的json对象
+            if (result) {
+                for (var i = 0; i < result.length; i++) {
+                    times.push(result[i].times);
+                    active.push(result[i].active)
+                    nNew.push(result[i].nNew)
+                    activePay.push(result[i].activePay)
+                    activeCrons.push(result[i].activeCrons)
+                    newPay.push(result[i].newPay)
+                    newCrons.push(result[i].newCrons)
+                    totalPay.push(result[i].totalPay)
+                    totalCrons.push(result[i].totalCrons)
+                }
+                myChart.hideLoading();    //隐藏加载动画
+                myChart.setOption({        //加载数据图表
+                    xAxis: {
+                        data: times
+                    },
+                    series: [{
+                        // 根据名字对应到相应的系列
+                        name: '活跃用户人数',
+                        data: active,
+                    }, {
+                        name: '新增用户人数',
+                        data: nNew,
+                    }, {
+                        name: '活跃充值人数',
+                        data: activePay,
+                    }, {
+                        name: '活跃消费人数',
+                        data: activeCrons,
+                    }, {
+                        name: '新增充值人数',
+                        data: newPay,
+                    }, {
+                        name: '新增消费人数',
+                        data: newCrons,
+                    }, {
+                        name: '总充值人数',
+                        data: totalPay,
+                    }, {
+                        name: '总消费人数',
+                        data: totalCrons,
+                    }]
+                });
+
+            }
+
+        },
+        error: function (errorMsg) {
+            //请求失败时执行该函数
+            alert("图表请求数据失败!");
+            myChart.hideLoading();
+        }
+    })
+
+    // myChart.showLoading();    //数据加载完之前先显示一段简单的loading动画
+    if (option && typeof option === "object") {
+        myChart.setOption(option, true);
+    }
+</script>
+</body>
+</html>
